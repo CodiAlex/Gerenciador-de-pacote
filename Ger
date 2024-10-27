@@ -1,0 +1,48 @@
+#!/bin/bash
+# By Alexandre
+ 
+[ ! -d ~/.Installed_softwares ] && mkdir ~/.Installed_softwares 
+ 
+ [ -z $1 ] && echo --help for for more information && exit 
+ 
+  case $1 in 
+      install)
+        [ -z $2 ] && echo Please name of package for install. && exit   
+Nome_do_diretorio=$(tar -xvf $2 | tail -n 1 | awk -F"/" '{print $1}')
+ 
+  grep $Nome_do_diretorio ~/.Installed &>/dev/null 
+    
+     if [ $? == 0 ] ; then 
+     echo The package has already been installed, continue? [ y/n ] 
+        read input 
+    [ $input != y ] && exit 
+     fi     
+  
+ 
+Dirs=$(ls $Nome_do_diretorio)
+ 
+Onde_esta_pacote_extraido=$(cd $Nome_do_diretorio && pwd && cd ..)
+ 
+for diretorios in $Dirs ; do 
+  cd $Onde_esta_pacote_extraido/$diretorios 
+ 
+# Instalação do pacote. 
+   sudo mv -v * /$diretorios | tee -a ~/.Installed_softwares/$2.txt  
+done 
+ 
+ 
+echo $Nome_do_diretorio >> ~/.Installed 
+ ;; 
+  remove)
+      [ -z $2 ] && echo Please specify package && exit 
+ Achar_arquivo=$(find ~/.Installed_softwares -name $2.txt)
+[ -z $Achar_arquivo ] && echo Not found package && exit 
+  Remover_pacotes=$(cat $Achar_arquivo | awk -F"->" '{print $2}' | tr -d \') 
+  sudo rm -v -r $Remover_pacotes 
+   rm ~/.Installed_softwares/$2.txt 
+  ;;
+--help)
+    echo install + name_of_package.tar.xz
+    echo remove + name_of_package.tar.xz 
+    ;;
+esac 
