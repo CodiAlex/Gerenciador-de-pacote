@@ -19,15 +19,18 @@ Nome_do_diretorio=$(tar -xvf $2 | tail -n 1 | awk -F"/" '{print $1}')
      fi     
   
  
-Dirs=$(ls $Nome_do_diretorio)
+( ls $Nome_do_diretorio | grep Deps &>/dev/null && ger install-deps $2 )  
+ 
+   Dirs=$(ls $Nome_do_diretorio)
  
 Onde_esta_pacote_extraido=$(cd $Nome_do_diretorio && pwd && cd ..)
  
+  echo Installing $2 
 for diretorios in $Dirs ; do 
   cd $Onde_esta_pacote_extraido/$diretorios 
  
 # Instalação do pacote. 
-   sudo mv -v * /$diretorios | tee -a ~/.Installed_softwares/$2.txt  
+   sudo cp -rv * /$diretorios 2>/dev/null | tee -a ~/.Installed_softwares/$2.txt  
 done 
  
  
@@ -43,6 +46,22 @@ echo $Nome_do_diretorio >> ~/.Installed
   ;;
 --help)
     echo install + name_of_package.tar.xz
-    echo remove + name_of_package.tar.xz 
+    echo remove + name_of_package.tar.xz
+    echo install-deps + name_of_package.tar.xz to install dependencies
+ 
     ;;
+ install-deps)
+  [ -z $2 ] && echo Please name of package.tar.xz && exit 
+ 
+    Dir_extraido=$(tar -xvf $2 | tee extract.txt | tail -n 1 | awk -F"/" '{print $1}')
+ 
+Local_do_dir=$(cd $Dir_extraido/Deps && pwd) 
+ 
+ for seq_deps in $(ls $Local_do_dir) ; do 
+    cd $Local_do_dir/$seq_deps 
+    pwd 
+   ger install *.tar.xz
+done 
+ 
+;;
 esac 
