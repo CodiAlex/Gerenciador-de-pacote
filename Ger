@@ -48,6 +48,8 @@ echo $Nome_do_diretorio >> ~/.Installed
     echo install + name_of_package.tar.xz
     echo remove + name_of_package.tar.xz
     echo install-deps + name_of_package.tar.xz to install dependencies
+    echo list-dependence + name_of_package.tar.xz for list dependencies
+    echo install-net + name_of_package.tar.xz for install software via internet 
  
     ;;
  install-deps)
@@ -62,6 +64,54 @@ Local_do_dir=$(cd $Dir_extraido/Deps && pwd)
     pwd 
    ger install *.tar.xz
 done 
+ ;;
+ list-dependence)
+     [ -z $2 ] && echo Please name of package.tar.xz && exit
+     Var=$(tar -tvf $2 | awk -F"Deps/" '{print $2}' | sed 's/[0-9]\// /')
+     count=0 
+        # Dizer na ordem quais dependências vão ser instaladas 
+         for seq_deps in $Var ; do
+                  count=$(($count+1))
+               echo Install Dependence $count $seq_deps
+         done
+     ;; 
+       
+    install-net)
  
+Link_do_repositorio="https://github.com/CodiAlex/Repo-test.git"
+Nome_do_diretorio=Repo-test
+Nome_do_arquivo=Repo.txt
+ 
+[ ! -d ~/.Repo-ger ] && mkdir ~/.Repo-ger
+[ -d $Nome_do_diretorio ] && sudo rm -r $Nome_do_diretorio
+ 
+git clone $Link_do_repositorio &&  mv $Nome_do_diretorio/$Nome_do_arquivo ~/.Repo-ger
+ 
+ 
+# Número da linha referente ao programa
+linha_do_programa=$(cat ~/.Repo-ger/$Nome_do_arquivo | grep -n $2 | awk -F":" '{print $1}')
+ 
+grep $2 ~/.Repo-ger/$Nome_do_arquivo &>/dev/null
+  [ $? == 1 ] && echo Package not found && exit
+ 
+   while : ; do
+ 
+linha_do_programa=$(($linha_do_programa+1))
+ 
+# Quebrar loop se achar a linha ---
+ 
+  saida_de_sed=$(sed -n "$linha_do_programa p" ~/.Repo-ger/$Nome_do_arquivo)
+ 
+       if [ "$saida_de_sed" == --- ] ; then
+           break
+       fi
+ 
+# Executar a saida de sed
+         $(sed -n "$linha_do_programa p" ~/.Repo-ger/$Nome_do_arquivo)
+ 
+ 
+ done
+ 
+  rm ~/.Repo-ger/$Nome_do_arquivo
 ;;
 esac 
