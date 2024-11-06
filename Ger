@@ -49,7 +49,8 @@ echo $Nome_do_diretorio >> ~/.Installed
     echo remove + name_of_package.tar.xz
     echo install-deps + name_of_package.tar.xz to install dependencies
     echo list-dependence + name_of_package.tar.xz for list dependencies
-    echo install-net + name_of_package.tar.xz for install software via internet 
+    echo install-net + name_of_package.tar.xz for install software via internet
+    echo list-installed List installed packages  
  
     ;;
  install-deps)
@@ -114,4 +115,9 @@ linha_do_programa=$(($linha_do_programa+1))
  
   rm ~/.Repo-ger/$Nome_do_arquivo
 ;;
+      
+   list-installed)  
+       echo Installed packages: 
+       ls ~/.Installed_softwares | sed s/.txt//
+       ;;
 esac 
